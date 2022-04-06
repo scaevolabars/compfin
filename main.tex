@@ -20,21 +20,221 @@ citecolor = blue]{hyperref}
 \usepackage{fancyvrb}
 \usepackage{fancyhdr, lastpage}
 \pagestyle{fancy}
-\lhead{YSDA preparation guide}
-\cfoot{Page \thepage\ of \pageref{LastPage}}
 
 \usepackage{graphicx}
 
 
+\usepackage{ytableau}
+\usepackage{stmaryrd}
 \usepackage{tcolorbox}
 \usepackage{tikz-cd}
 \usepackage{tikz}
 \usepackage{setspace}
 \usepackage{pdfpages}
+\title{Computational Finance}
+\author{Sergey Barseghyan}
+\date{March 2022}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newtheorem{qu}{Question}[section]
+\newtheorem{sol}{Solution}[section]
+\newtheorem{theor}{Theorem}[section]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \begin{document}
+	
+	\maketitle
+	
+	\section{Question 1: The Binomial Method}
+	
+	Problem statement
+	
+	\begin{qu}
+		What is the proce of the zero-coupon bond $P(t_{i}, t_{m})$?
+	\end{qu}
+	
+	\begin{sol}
+		\begin{equation}
+			P(t_{i}, t_{m}) = F e ^ {- r \left(m - i\right) \Delta t}
+		\end{equation}
+	\end{sol}
+	
+	\begin{qu}
+		For what values of $u, d$ and $p$ do we obtain the risk-neutral dynamics?
+	\end{qu}
+	
+	\begin{sol}
+		
+		%%%Bring risk-neutrality definition%%%%
+		
+		Parameteres must satisfy following equation
+		\begin{equation}
+			p = \frac{e^{r\Delta t} - d}{u - d}
+		\end{equation}
+		
+	\end{sol}
 
-Hello there
+	\begin{qu}
+		Price a European call at $t_0 = 0$ with maturity $t_{M} = 1$, strike $K = 70$, interest
+		rate $r = 0.01$, upward move $u = 1.05$ and current spot $S_0 = 50$. Derive
+		numerically the convergence rate as $M \rightarrow \infty$
+	\end{qu}
 
+	\begin{sol}
+		\begin{align*}
+			C(M) = e^{-r T}\mathbb{E}\left[\left(S_{t_{M}} - K\right)^{+}\right]\\
+			%%
+			\mathbb{P}\left(S_{t_M} = S_0 u^k d^{M - k}\right) = \binom{n}{k}p^k (1 - p)^{M-k} \\
+			%%w
+			C(M) = e^{-r T}\sum^{M}_{k}\binom{n}{k}p^k (1 - p)^{M-k}\left(S_{t_{M}} - K\right)^{+} = e^{-r T}\sum^{M}_{a}\binom{n}{k}p^k (1 - p)^{M-k}\left(S_{t_{M}} - K\right) \\
+			\text{where } a  = \min\left(j \in \overline{1,n}\vert j \ge b\right) \,
+			b = \frac{\ln{(K/S_0)} - n \ln{d}}{\ln{(u/d)}}
+		\end{align*}
+	\end{sol}
+	\section{Question 2: PDEs Method}
+	Assume a constant continuously compounded interest rate
+	$r > 0$ and GBM mode for the stock price:
+	\begin{align}
+		d S_{t} = \mu S_{t} d t  +  \sigma S_{t} d W_{t}
+	\end{align}
+
+	\begin{qu}
+		Derive the Black-Scholes PDE for the present value $V(t, S_{t})$ of a European call or put option:
+		\begin{align}
+			\dfrac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \dfrac{\partial^2 V}{\partial S^2} + rS \dfrac{\partial V}{\partial S} = rV
+		\end{align}
+	\end{qu}
+	
+	\begin{sol}
+		The solution can be derived from very useful statement of Feynman-Kac theorem which connects stochastic differential equations with PDE.
+		The BS PDE can be directly obtained by this theorem, but it is useful to repeat that calculation once more.
+		\begin{theor}[Feynman-Kac]
+			\begin{align}
+					d X_{t} =  \beta (u, X_{t}) d u  +  \gamma (u, X(u)) d W_{u}
+			\end{align}
+		
+			Let $h(y)$ be a Borel-measurable function. Fix $T > 0$ and let $t \in \left[0, T\right]$.
+			
+			\begin{align}
+				V(t, X(t))  = \mathbb{E}^{t,x} \left[ e^{-r(T-t)}h(X(T))\right]
+			\end{align}
+			Then $V(t, X(t))$ satisfies the partial differential equation
+			
+			\begin{align}
+				V_{t}(t, x) + \beta V_{x}(t, x) + \frac{1}{2} \gamma^2 V_{xx}(t, x =  r)V(t, x)
+			\end{align}
+		
+			 and the terminal condition $f(T,x) = h(x)  \quad \forall x$				
+		\end{theor}
+		
+		\begin{eqnarray}
+			V(t, X(t))  = \mathbb{E}^{t,x} \left[ e^{-r(T-t)}h((T)) | \mathcal{F}(t) \right]\\
+			V(t, X(t)) \text{ is not a martingale }\\
+			\mathbb{E}^{t,x} \left[ e^{-r(T-t)}h((T)) | \mathcal{F}(s) \right]  = \mathbb{E}\left[ 
+			\mathbb{E} \left[ e^{-r(T-t)}h((T)) | \mathcal{F}(t) \right] | \mathcal{F}(s) \neq 	\mathbb{E} \left[ e^{-r(T-s)}h((T)) | \mathcal{F}(t) \right] | \mathcal{F}(s)
+			\right]
+		\end{eqnarray}
+	
+		To get rid of the dependency from the conditioning we multiply both side of the equation by $e^{-rt}$
+		
+		
+		\begin{eqnarray}
+			d\left(e^{-rt}V(t,X(t))\right) = e^{-rt}\left[ - rV dt + f_{t} dt  +f_{x}dX + \frac{1}{2} V_{xx}dXdX\right]\\ =  e^{-rt}\left[ - rV  + V_{t}  +V_{x} + \frac{1}{2} \gamma^2 V_{xx}\right]dt + e^{-rt} \gamma V_{x} d W
+		\end{eqnarray}
+		Setting the $dt$ term to zero we obtain the equation $ V_{t}  +V_{x} + \frac{1}{2} \gamma^2 V_{xx} = - rV $
+		
+		\begin{eqnarray*}
+			X(t) = S(t)\\
+			\gamma = \sigma S(t) \\
+			\beta = \mu \\
+		\end{eqnarray*}
+	
+		\begin{eqnarray*}
+			\dfrac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \dfrac{\partial^2 V}{\partial S^2} + rS \dfrac{\partial V}{\partial S} = rV
+		\end{eqnarray*}
+	\end{sol}
+
+
+
+
+		\begin{eqnarray*}
+			\tau = T - \frac{2t}{\sigma^2} \\
+			S = E e^{x}
+			V(t,S) = E v(\tau, x)
+		\end{eqnarray*}
+	
+		\begin{eqnarray*}
+			&\dfrac{\partial x}{\partial S}  = \dfrac{1}{S/E}  \dfrac{1}{E}  = \dfrac{1}{S},
+			  %%
+			   &\dfrac{\partial x}{\partial t}  = 0 \\
+			  %%
+			& \dfrac{\partial \tau}{\partial t} = -\frac{1}{2} \sigma^2  &\dfrac{\partial \tau}{\partial S} = 0\\
+			%%
+			%%
+			&\dfrac{\partial V}{\partial t} = E \left(\dfrac{\partial v}{\partial x }\dfrac{\partial x}{\partial t} + \dfrac{\partial v}{ \partial \tau}\dfrac{\partial \tau}{\partial t}\right) = -\frac{1}{2} \sigma^2 E \dfrac{\partial v}{\partial \tau}, \\
+			&\dfrac{\partial V}{\partial S} = E \left(\dfrac{\partial v}{\partial x }\dfrac{\partial x}{\partial S} + \dfrac{\partial v}{ \partial \tau}\dfrac{\partial \tau}{\partial S}\right) = \dfrac{E}{S} \dfrac{\partial v}{\partial x} \\
+			&\dfrac{\partial^2 V}{\partial S^2}  = E \dfrac{\partial}{\partial S}\left(\dfrac{1}{S}\dfrac{\partial v}{\partial x}\right) \\
+			& E \left(-\dfrac{1}{S^2} \dfrac{\partial v}{\partial x} + \dfrac{1}{S} \dfrac{\partial^2 v}{\partial x^2}\dfrac{\partial x}{\partial S} + \dfrac{1}{S} \dfrac{\partial^2 v}{\partial \tau \partial x} \dfrac{\partial \tau}{\partial S}\right) 
+			 = E \left(- \dfrac{1}{S^2} \dfrac{\partial v}{\partial x} + \dfrac{1}{S^2} \dfrac{\partial^2 v}{\partial x^2}\right)
+		\end{eqnarray*}
+		Black Scholes PDE
+		\begin{eqnarray*}
+			&-\dfrac{1}{2} \sigma^2 E \dfrac{\partial v}{\partial \tau} + \dfrac{1}{2} \sigma^2 S^2 \left(- \dfrac{1}{S^2} \dfrac{\partial v}{\partial x} + \dfrac{1}{S^2} \dfrac{\partial^2 v}{\partial x^2}\right) + rS \dfrac{E}{S} \dfrac{\partial v}{\partial x} - rEv =0 \\
+			%%
+			&k = \dfrac{2r}{\sigma^2} \\
+			& \dfrac{\partial v}{\partial \tau} = \dfrac{\partial^2 v}{\partial x^2} + (k - 1)\dfrac{\partial v}{\partial x} - kv
+		\end{eqnarray*}
+	
+		\begin{eqnarray*}
+		    &v(\tau, x) = e^{\alpha x + \beta \tau} y(\tau, x) \\
+			&\dfrac{\partial v}{\partial \tau} = e^{\alpha x + \beta \tau} \left(\beta y  + \dfrac{\partial y}{\partial \tau}\right) \\
+			&\dfrac{\partial v}{\partial x} = e^{\alpha x + \beta \tau} \left(\beta y  + \dfrac{\partial y}{\partial \tau}\right) \\
+			&\dfrac{\partial^2 v}{\partial x^2} = e^{\alpha x + \beta \tau} \left(\alpha^2 y
+			  +  2 \alpha \dfrac{\partial y}{\partial x} + \dfrac{\partial^2 y}{\partial x^2}\right) \\
+			&\dfrac{\partial y}{\partial \tau} = \dfrac{\partial^2 y }{\partial x^2} + 
+			\left(k -1 + 2\alpha\right)\dfrac{\partial y}{\partial x} +
+			\left(\alpha^2 - \alpha k - \alpha  - k  - \beta\right) y \\
+			&\alpha = \dfrac{1 - k}{2} 
+			\beta =  \alpha^2 - \alpha k - \alpha  - k 	 = \left(\dfrac{1- k}{2}\right)	 \left(\dfrac{1+ k}{2}\right) -  \left(\dfrac{1 + k}{2}\right)	 = -\dfrac{1}{4}(1+k)^2 \\
+			&\dfrac{\partial u}{\partial \tau} = \dfrac{\partial^2 u}{\partial x^2}		
+		\end{eqnarray*}
+	
+		\subsection{Boundary Conditions}
+		Call
+		\begin{equation}
+			\begin{cases}
+				V(T,S) = \max\left(S - E, 0\right) \\
+				V(t,0) = 0 \\
+				V(t,S) \sim  S, S \rightarrow \infty
+			\end{cases}
+			%
+			\begin{cases}
+				y(0,x) = e^{-\alpha x}\max\left(e^x - 1, 0\right) = \max\left(e^{(k+1)x/2} - e^{(k-1)x/2}, 0\right) \\
+				y(\tau,x) \rightarrow 0, x \rightarrow - \infty \\
+				y(\tau,S) \sim  e^{(k+1)x/2}, x \rightarrow \infty
+			\end{cases}
+			%
+		\end{equation}
+		Put
+		\begin{equation}
+			\begin{cases}
+				V(T,S) = \max\left(E - S, 0\right) \\
+				V(t,0) = Ee^{-r(T-t)} \\
+				V(t,S)  \rightarrow  0 , S \rightarrow \infty
+			\end{cases}
+			%
+			\begin{cases}
+				y(0,x) = e^{-\alpha x}\max\left(e^x - 1, 0\right) = \max\left(e^{(k-1)x/2} - e^{(k+1)x/2}, 0\right) \\
+				y(\tau,x) \rightarrow 0, x \rightarrow  \infty \\
+				y(\tau,S) \sim  e^{(k-1)^2/4}, x \rightarrow  -\infty
+			\end{cases}
+		\end{equation}
+			
+	
+		
+	
+	
 \end{document}
