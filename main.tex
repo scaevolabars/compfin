@@ -94,6 +94,18 @@ citecolor = blue]{hyperref}
 			b = \frac{\ln{(K/S_0)} - n \ln{d}}{\ln{(u/d)}}
 		\end{align*}
 	\end{sol}
+
+	\begin{qu}
+		Construct a delta hedging strategy. Experiment with Monte-Carlo simulations
+		how well do you replicate the option as $M \rightarrow \infty$.
+	\end{qu}	
+
+	\begin{sol}
+		\begin{eqnarray}
+			d \Pi_t = d V_t -  \Delta_t d S_t
+		\end{eqnarray}
+	\end{sol}
+	
 	\section{Question 2: PDEs Method}
 	Assume a constant continuously compounded interest rate
 	$r > 0$ and GBM mode for the stock price:
@@ -234,9 +246,57 @@ citecolor = blue]{hyperref}
 				y(\tau,S) \sim  e^{(k-1)^2/4}, x \rightarrow  -\infty
 			\end{cases}
 		\end{equation}
-			
 	
 		\end{sol}
 	
+		\begin{qu}
+			For the heat equation above, derive the explicit, the implicit and the Crank-Nicolson finite-difference schemes with time, space steps $\Delta \tau, \Delta x$ respectively.
+			For each of those schemes
+			\begin{itemize}
+				\item For the heat equation above, derive the explicit, the implicit and the Crank-Nicolson finite-difference schemes with time, space steps  $\Delta \tau, \Delta x$ respectively.
+				For each of those schemes $ x_{min}  \le x \le x_{max}$ \\
+				\item
+				For what values of $\Delta \tau, \Delta x$  we have numerical stability. \\
+				\item
+				What is the order of convergence  $\Delta \tau, \Delta x \rightarrow 0$
+			\end{itemize}
+		\end{qu}
+		
+		\begin{sol}
+			\textbf{Explicit}
+			\begin{eqnarray}
+				%%%%%%%%%%%%
+				\frac{\partial y_{i, \nu}}{\partial \tau}:=\frac{\partial y\left(x_{i}, \tau_{\nu}\right)}{\partial \tau}=\frac{y_{i, \nu+1}-y_{i, \nu}}{\Delta \tau}+O(\Delta \tau) \\
+				%%%%%%%%%%%%
+				\frac{\partial^{2} y_{i, \nu}}{\partial x^{2}}=\frac{y_{i+1, \nu}-2 y_{i, \nu}+y_{i-1, \nu}}{\Delta x^{2}}+O\left(\Delta x^{2}\right) \\
+				%%%%%%%%%%%%
+				\frac{w_{i, \nu+1}-w_{i, \nu}}{\Delta \tau}=\frac{w_{i+1, \nu}-2 w_{i, \nu}+w_{i-1, \nu}}{\Delta x^{2}} \\
+				%%%%%%%%%%%%
+				w_{i, \nu+1}=w_{i, \nu}+\frac{\Delta \tau}{\Delta x^{2}}\left(w_{i+1, \nu}-2 w_{i, \nu}+w_{i-1, \nu}\right) \\
+				%%
+				\lambda \le \frac{1}{2}
+			\end{eqnarray}
+		
+			\textbf{Implicit}
+			\begin{eqnarray}
+				\frac{\partial y_{i, \nu}}{\partial \tau}=\frac{y_{i, \nu}-y_{i, \nu-1}}{\Delta \tau}+O(\Delta \tau) \\
+				-\lambda w_{i+1, \nu}+(1+2 \lambda) w_{i, \nu}-\lambda w_{i-1, \nu}=w_{i, \nu-1} \\
+				\lambda > 0
+			\end{eqnarray}
+			\textbf{Crank-Nicolson}
+			
+	
+			\begin{eqnarray}
+			%%
+			\frac{w_{i, \nu+1}-w_{i, \nu}}{\Delta \tau}=\frac{w_{i+1, \nu}-2 w_{i, \nu}+w_{i-1, \nu}}{\Delta x^{2}} \\
+			%%
+			\frac{w_{i, \nu+1}-w_{i, \nu}}{\Delta \tau}=\frac{w_{i+1, \nu+1}-2 w_{i, \nu+1}+w_{i-1, \nu+1}}{\Delta x^{2}} \\
+			%%
+			\frac{w_{i, \nu+1}-w_{i, \nu}}{\Delta \tau}=\frac{1}{2 \Delta x^{2}}\left(w_{i+1, \nu}-2 w_{i, \nu}+w_{i-1, \nu}+w_{i+1, \nu+1}-2 w_{i, \nu+1}+w_{i-1, \nu+1}\right) . \\
+			%%			
+			\lambda > 0
+			\end{eqnarray}
+			
+		\end{sol}
 	
 \end{document}
